@@ -1,0 +1,6 @@
+{
+  "name": "Stroke Risk Prediction",
+  "description": "Six-factor research prototype and machine learning risk stratification.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

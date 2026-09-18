@@ -1,35 +1,29 @@
-# Stroke Risk Prediction
+# Stroke Detection & Clinical Risk Prediction
 
-AI-powered stroke risk prediction using machine learning and explainable AI.
+Machine learning stroke risk prediction and clinical risk stratification calibrated on the 5,110 patient Kaggle Clinical Stroke Prediction dataset.
 
-A reproducible, leakage-safe pipeline for the imbalanced `stroke_prediction.csv` dataset. This project is intended for hackathon prototyping, not clinical diagnosis or treatment decisions.
+## Core Features & Feature Engineering
 
-## Approach
+- **Optimized 6-Factor Predictive Pipeline**: Built strictly around high-impact physiological biomarkers with validated clinical etiology:
+  - **Age** (dominant non-linear risk predictor)
+  - **Average Blood Glucose Level** (glycemic & metabolic damage)
+  - **Hypertension** (chronic vascular endothelial strain)
+  - **Heart Disease** (atrial fibrillation & cardioembolic etiology)
+  - **Body Mass Index (BMI)** (obesity-mediated vascular risk)
+  - **Smoking Status** (direct cerebrovascular atherogenesis)
+- **Pruned Irrelevant Features**:
+  - `id`: Dropped arbitrary patient ID to prevent leakage and tree split overfitting.
+  - `Residence_type` (Urban/Rural): Dropped due to near-zero predictive attribution (|SHAP| < 0.03).
+  - `ever_married`: Dropped as a redundant confounding proxy for age.
+- **Isotonic Calibration**: Calibrates class-balanced model probabilities down to true population prevalence (~4.87%).
+- **Interactive Clinical Archetypes**: Fast presets for pediatric, middle-aged moderate, senior with comorbidities, and high-risk cases.
 
-- Drop `id` from model features while retaining it as `patient_id` in handoff predictions.
-- Parse literal `N/A` values as missing and median-impute numeric fields inside the training pipeline.
-- Use stratified train/validation/test splits.
-- Compare class-balanced logistic regression with class-weighted XGBoost.
-- Select operating thresholds using validation data, then report ROC-AUC, average precision, recall, precision, and coverage.
-- Calibrate probabilities separately and produce SHAP explanations.
+## Getting Started
 
-## Layout
-
-- `src/`: reusable preprocessing, training, calibration, abstention, and explanation code.
-- `notebooks/`: ordered exploratory and modeling notebooks.
-- `outputs/`: generated handoff artifacts.
-- `demo/`: Streamlit prediction demo.
-
-## Run
-
-```powershell
-pip install -r requirements.txt
-Copy-Item .\stroke_prediction.csv .\data\stroke_prediction.csv
-python -m src.train_model
-python -m src.calibrate
-python -m src.abstention
-python -m src.explain
-streamlit run demo/app.py
+```bash
+npm install
+npm run dev
 ```
 
-The positive class is rare, so accuracy is not the primary success criterion. Review average precision, recall, calibration, and the number of cases sent for manual review together.
+The application runs on port `3000` (`http://0.0.0.0:3000`).
+

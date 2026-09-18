@@ -1,14 +1,5 @@
-# Python environments and caches
-.venv/
-__pycache__/
-*.py[cod]
-.ipynb_checkpoints/
-
-# Local editor and OS files
-.vscode/
-.DS_Store
-Thumbs.db
-
-# Local secrets
+node_modules
+dist
 .env
-.env.*
+.env.local
+*.log
