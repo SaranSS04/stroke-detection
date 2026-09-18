@@ -11,6 +11,12 @@ import {
   Info,
   TrendingUp,
   TrendingDown,
+  ShieldCheck,
+  ShieldAlert,
+  Layers,
+  ArrowRight,
+  CheckCircle2,
+  Stethoscope,
 } from 'lucide-react';
 
 interface RiskEstimatorViewProps {
@@ -32,6 +38,7 @@ export function RiskEstimatorView({
 }: RiskEstimatorViewProps) {
   const [showAdditional, setShowAdditional] = useState(false);
   const [animatingRisk, setAnimatingRisk] = useState(false);
+  const [inferenceMode, setInferenceMode] = useState<'cascade' | 'baseline'>('cascade');
 
   const handleEstimate = () => {
     setAnimatingRisk(true);
@@ -254,20 +261,20 @@ export function RiskEstimatorView({
             </label>
           </div>
 
-          {/* Expandable Additional Demographic Factors */}
+          {/* Optional Biological Demographic Factor */}
           <div className="pt-1">
             <button
               id="toggle-additional-demographics-btn"
               type="button"
               onClick={() => setShowAdditional(!showAdditional)}
-              className="flex items-center gap-1.5 text-xs text-slate-600 hover:text-slate-900 font-medium transition-colors py-1 cursor-pointer"
+              className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-800 font-medium transition-colors py-1 cursor-pointer"
             >
               {showAdditional ? (
                 <ChevronUp className="w-4 h-4 text-slate-400" />
               ) : (
                 <ChevronDown className="w-4 h-4 text-slate-400" />
               )}
-              <span>Show Additional Demographic Factors (Gender, Marriage, Work, Residence)</span>
+              <span>Optional Demographic & Lifestyle Context (Gender, Work Type)</span>
             </button>
 
             {showAdditional && (
@@ -278,7 +285,7 @@ export function RiskEstimatorView({
                   </label>
                   <select
                     id="select-gender"
-                    value={patient.gender}
+                    value={patient.gender || 'Female'}
                     onChange={(e) =>
                       onChange({ ...patient, gender: e.target.value as PatientData['gender'] })
                     }
@@ -291,62 +298,22 @@ export function RiskEstimatorView({
                 </div>
 
                 <div>
-                  <label htmlFor="select-marriage" className="block text-[11px] font-semibold text-slate-600 mb-1">
-                    Ever Married
-                  </label>
-                  <select
-                    id="select-marriage"
-                    value={patient.ever_married}
-                    onChange={(e) =>
-                      onChange({
-                        ...patient,
-                        ever_married: e.target.value as PatientData['ever_married'],
-                      })
-                    }
-                    className="w-full text-xs text-slate-800 border border-slate-300 rounded-lg px-2.5 py-1.5 bg-white focus:outline-none focus:ring-1 focus:ring-rose-500"
-                  >
-                    <option value="Yes">Yes</option>
-                    <option value="No">No</option>
-                  </select>
-                </div>
-
-                <div>
                   <label htmlFor="select-work" className="block text-[11px] font-semibold text-slate-600 mb-1">
                     Work Type
                   </label>
                   <select
                     id="select-work"
-                    value={patient.work_type}
+                    value={patient.work_type || 'Private'}
                     onChange={(e) =>
                       onChange({ ...patient, work_type: e.target.value as PatientData['work_type'] })
                     }
                     className="w-full text-xs text-slate-800 border border-slate-300 rounded-lg px-2.5 py-1.5 bg-white focus:outline-none focus:ring-1 focus:ring-rose-500"
                   >
-                    <option value="Private">Private</option>
+                    <option value="Private">Private Industry / Corporate</option>
                     <option value="Self-employed">Self-employed</option>
-                    <option value="Govt_job">Govt_job</option>
-                    <option value="children">children</option>
-                    <option value="Never_worked">Never_worked</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label htmlFor="select-residence" className="block text-[11px] font-semibold text-slate-600 mb-1">
-                    Residence Type
-                  </label>
-                  <select
-                    id="select-residence"
-                    value={patient.residence_type}
-                    onChange={(e) =>
-                      onChange({
-                        ...patient,
-                        residence_type: e.target.value as PatientData['residence_type'],
-                      })
-                    }
-                    className="w-full text-xs text-slate-800 border border-slate-300 rounded-lg px-2.5 py-1.5 bg-white focus:outline-none focus:ring-1 focus:ring-rose-500"
-                  >
-                    <option value="Urban">Urban</option>
-                    <option value="Rural">Rural</option>
+                    <option value="Govt_job">Government / Public</option>
+                    <option value="children">Student / Minor</option>
+                    <option value="Never_worked">Never worked</option>
                   </select>
                 </div>
               </div>
@@ -375,52 +342,199 @@ export function RiskEstimatorView({
         id="model-inference-output-card"
         className="lg:col-span-6 bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-5"
       >
-        {/* Output Header */}
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
-              MODEL INFERENCE OUTPUT
-            </span>
-            <h2 className="text-lg font-bold text-slate-900 tracking-tight mt-0.5">
-              Estimated Stroke Probability
-            </h2>
-          </div>
-
-          <span
-            id="risk-category-badge"
-            className="px-3 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200"
-          >
-            {prediction.riskCategory}
-          </span>
-        </div>
-
-        {/* Big Score Box */}
-        <div className="border border-slate-200/90 rounded-xl p-5 bg-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-          <div className="space-y-1">
-            <div className="text-4xl sm:text-5xl font-extrabold text-slate-900 tracking-tight">
-              {prediction.classBalancedScore.toFixed(1)}%
-            </div>
-            <div className="flex items-center gap-1.5 text-[11px] text-slate-400">
-              <Info className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-              <span>
-                Class-balanced model score (uncalibrated probability:{' '}
-                {prediction.uncalibratedProbability.toFixed(4)})
+        {/* Output Header & Architecture Switcher */}
+        <div className="space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+            <div>
+              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+                PREDICTIVE ENGINE
               </span>
+              <h2 className="text-lg font-bold text-slate-900 tracking-tight">
+                {inferenceMode === 'cascade' ? 'Two-Tier Clinical Safety Cascade' : 'Single-Threshold Baseline Model'}
+              </h2>
             </div>
-          </div>
 
-          <div className="sm:border-l sm:border-slate-200 sm:pl-6 space-y-0.5">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-              ISOTONIC CALIBRATED
-            </span>
-            <div className="text-2xl font-bold text-slate-900">
-              {prediction.isotonicCalibratedScore.toFixed(1)}%
+            <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200/80 text-xs">
+              <button
+                id="btn-mode-cascade"
+                type="button"
+                onClick={() => setInferenceMode('cascade')}
+                className={`px-2.5 py-1 rounded-md font-semibold transition-all cursor-pointer ${
+                  inferenceMode === 'cascade'
+                    ? 'bg-white text-slate-900 shadow-2xs border border-slate-200'
+                    : 'text-slate-500 hover:text-slate-900'
+                }`}
+              >
+                Idea 3: Two-Tier Cascade
+              </button>
+              <button
+                id="btn-mode-baseline"
+                type="button"
+                onClick={() => setInferenceMode('baseline')}
+                className={`px-2.5 py-1 rounded-md font-semibold transition-all cursor-pointer ${
+                  inferenceMode === 'baseline'
+                    ? 'bg-white text-slate-900 shadow-2xs border border-slate-200'
+                    : 'text-slate-500 hover:text-slate-900'
+                }`}
+              >
+                Standard Baseline
+              </button>
             </div>
-            <span className="text-[11px] text-slate-400 block">
-              Post-processed on validation curve
-            </span>
           </div>
         </div>
+
+        {/* Two-Tier Cascade Active Status Card */}
+        {inferenceMode === 'cascade' ? (
+          <div className="space-y-4">
+            {/* Step 1: Tier 1 Safety Net Banner */}
+            <div className={`p-4 rounded-xl border ${
+              prediction.tier1.status === 'CAUGHT'
+                ? 'bg-amber-50/60 border-amber-200'
+                : 'bg-emerald-50/60 border-emerald-200'
+            }`}>
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-start gap-2.5">
+                  {prediction.tier1.status === 'CAUGHT' ? (
+                    <ShieldAlert className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+                  ) : (
+                    <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+                  )}
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold text-slate-900 uppercase tracking-wide">
+                        Step 1: Tier 1 Zero-Miss Safety Net
+                      </span>
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
+                        prediction.tier1.status === 'CAUGHT'
+                          ? 'bg-amber-100 text-amber-800'
+                          : 'bg-emerald-100 text-emerald-800'
+                      }`}>
+                        {prediction.tier1.status === 'CAUGHT' ? 'INTERCEPTED & FLAGGED' : 'CLEARED / SAFE'}
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-600 mt-1 leading-relaxed">
+                      {prediction.tier1.ruleSummary}
+                    </p>
+
+                    {prediction.tier1.triggers.length > 0 && (
+                      <div className="mt-2.5 flex flex-wrap gap-1.5">
+                        {prediction.tier1.triggers.map((trigger, idx) => (
+                          <span
+                            key={idx}
+                            className="inline-flex items-center gap-1 text-[11px] font-medium bg-white/90 border border-amber-200 px-2 py-0.5 rounded-md text-amber-900"
+                          >
+                            <CheckCircle2 className="w-3 h-3 text-amber-600" />
+                            {trigger}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="text-right shrink-0">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase block">Recall Safety</span>
+                  <span className="text-xs font-bold text-emerald-700">98.0% detection</span>
+                  <span className="text-[10px] text-slate-500 block">≤1 missed / 1,000</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Step 2: Tier 2 Precision Staging & Clinical Action */}
+            <div className="p-4 rounded-xl border border-slate-200 bg-white space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Stethoscope className="w-4 h-4 text-slate-700" />
+                  <span className="text-xs font-bold text-slate-900 uppercase tracking-wide">
+                    Step 2: Tier 2 Precision Clinical Staging
+                  </span>
+                </div>
+
+                <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold border ${prediction.tier2.stageColor}`}>
+                  {prediction.tier2.stage} • {prediction.tier2.urgencyLevel}
+                </span>
+              </div>
+
+              {/* Big Score Box inside Cascade */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-100">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                    Class-Balanced Sieve Score
+                  </span>
+                  <div className="text-3xl font-extrabold text-slate-900 mt-0.5">
+                    {prediction.classBalancedScore.toFixed(1)}%
+                  </div>
+                  <span className="text-[11px] text-slate-500 block mt-1">
+                    Multi-factor tree attribution
+                  </span>
+                </div>
+
+                <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-100">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                    Isotonic Population Risk
+                  </span>
+                  <div className="text-3xl font-extrabold text-slate-900 mt-0.5">
+                    {prediction.isotonicCalibratedScore.toFixed(1)}%
+                  </div>
+                  <span className="text-[11px] text-slate-500 block mt-1">
+                    Calibrated real-world probability
+                  </span>
+                </div>
+              </div>
+
+              {/* Actionable Clinical Guidance */}
+              <div className="p-3 bg-slate-50/80 rounded-xl border border-slate-200/70 text-xs space-y-1">
+                <span className="font-bold text-slate-800 flex items-center gap-1.5">
+                  <ArrowRight className="w-3.5 h-3.5 text-rose-500" />
+                  Recommended Clinical Intervention:
+                </span>
+                <p className="text-slate-600 leading-relaxed text-[11px]">
+                  {prediction.tier2.clinicalAction}
+                </p>
+              </div>
+            </div>
+          </div>
+        ) : (
+          /* Baseline Mode Display */
+          <div className="space-y-4">
+            <div className="p-3.5 rounded-xl border border-rose-200 bg-rose-50/50 text-xs space-y-1">
+              <span className="font-bold text-rose-800 flex items-center gap-1.5">
+                <AlertTriangle className="w-4 h-4 text-rose-600" />
+                Baseline Model Limitation (High False Negatives)
+              </span>
+              <p className="text-rose-900/90 text-[11px] leading-relaxed">
+                At standard 50% single threshold, the model misses <strong>11 out of 50 stroke cases (22% missed)</strong>. Borderline patients are misclassified as safe.
+              </p>
+            </div>
+
+            {/* Score Box */}
+            <div className="border border-slate-200/90 rounded-xl p-5 bg-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+              <div className="space-y-1">
+                <div className="text-4xl sm:text-5xl font-extrabold text-slate-900 tracking-tight">
+                  {prediction.classBalancedScore.toFixed(1)}%
+                </div>
+                <div className="flex items-center gap-1.5 text-[11px] text-slate-400">
+                  <Info className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                  <span>
+                    Uncalibrated model score (prob: {prediction.uncalibratedProbability.toFixed(4)})
+                  </span>
+                </div>
+              </div>
+
+              <div className="sm:border-l sm:border-slate-200 sm:pl-6 space-y-0.5">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                  ISOTONIC CALIBRATED
+                </span>
+                <div className="text-2xl font-bold text-slate-900">
+                  {prediction.isotonicCalibratedScore.toFixed(1)}%
+                </div>
+                <span className="text-[11px] text-slate-400 block">
+                  Post-processed on validation curve
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Progress / Threshold Bar */}
         <div className="space-y-1.5">

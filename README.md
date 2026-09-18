@@ -1,15 +1,22 @@
-# Stroke Detection & Explainable AI (XAI)
+# Stroke Detection & Clinical Risk Prediction
 
-AI-powered stroke risk prediction using machine learning and explainable AI (SHAP, LIME, and Counterfactual simulations), calibrated on the Kaggle Clinical Stroke Prediction dataset.
+Machine learning stroke risk prediction and clinical risk stratification calibrated on the 5,110 patient Kaggle Clinical Stroke Prediction dataset.
 
-## Features
+## Core Features & Feature Engineering
 
-- **Calibrated Ensemble Model**: Accurately estimates 10-year cerebrovascular incident probabilities based on 11 demographic and physiological features (Age, Blood Pressure, Heart Disease, Average Glucose, BMI, Smoking Status, and Lifestyle factors).
-- **SHAP Feature Attribution (Shapley Values)**: Decomposes the exact contribution of each patient biomarker relative to the general population baseline ($E[f(x)] = 4.87\%$).
-- **LIME Local Surrogates**: Fits local decision boundaries to map the specific neighborhood rules that govern the patient's risk profile ($R^2 \approx 0.94$).
-- **Counterfactual "What-If" Interventions**: Actionable prescriptive simulation allowing clinicians and patients to simulate interventions (e.g. smoking cessation, blood pressure normalization, glycemic management) and view live risk delta reductions.
-- **B.E. F.A.S.T. Emergency Protocol**: Comprehensive American Stroke Association signs and emergency triage protocol.
-- **Clinical Summary Report**: Exportable and printable diagnostic summary for clinical consultation.
+- **Optimized 6-Factor Predictive Pipeline**: Built strictly around high-impact physiological biomarkers with validated clinical etiology:
+  - **Age** (dominant non-linear risk predictor)
+  - **Average Blood Glucose Level** (glycemic & metabolic damage)
+  - **Hypertension** (chronic vascular endothelial strain)
+  - **Heart Disease** (atrial fibrillation & cardioembolic etiology)
+  - **Body Mass Index (BMI)** (obesity-mediated vascular risk)
+  - **Smoking Status** (direct cerebrovascular atherogenesis)
+- **Pruned Irrelevant Features**:
+  - `id`: Dropped arbitrary patient ID to prevent leakage and tree split overfitting.
+  - `Residence_type` (Urban/Rural): Dropped due to near-zero predictive attribution (|SHAP| < 0.03).
+  - `ever_married`: Dropped as a redundant confounding proxy for age.
+- **Isotonic Calibration**: Calibrates class-balanced model probabilities down to true population prevalence (~4.87%).
+- **Interactive Clinical Archetypes**: Fast presets for pediatric, middle-aged moderate, senior with comorbidities, and high-risk cases.
 
 ## Getting Started
 
