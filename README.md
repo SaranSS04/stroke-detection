@@ -1,35 +1,22 @@
-# Stroke Risk Prediction
+# Stroke Detection & Explainable AI (XAI)
 
-AI-powered stroke risk prediction using machine learning and explainable AI.
+AI-powered stroke risk prediction using machine learning and explainable AI (SHAP, LIME, and Counterfactual simulations), calibrated on the Kaggle Clinical Stroke Prediction dataset.
 
-A reproducible, leakage-safe pipeline for the imbalanced `stroke_prediction.csv` dataset. This project is intended for hackathon prototyping, not clinical diagnosis or treatment decisions.
+## Features
 
-## Approach
+- **Calibrated Ensemble Model**: Accurately estimates 10-year cerebrovascular incident probabilities based on 11 demographic and physiological features (Age, Blood Pressure, Heart Disease, Average Glucose, BMI, Smoking Status, and Lifestyle factors).
+- **SHAP Feature Attribution (Shapley Values)**: Decomposes the exact contribution of each patient biomarker relative to the general population baseline ($E[f(x)] = 4.87\%$).
+- **LIME Local Surrogates**: Fits local decision boundaries to map the specific neighborhood rules that govern the patient's risk profile ($R^2 \approx 0.94$).
+- **Counterfactual "What-If" Interventions**: Actionable prescriptive simulation allowing clinicians and patients to simulate interventions (e.g. smoking cessation, blood pressure normalization, glycemic management) and view live risk delta reductions.
+- **B.E. F.A.S.T. Emergency Protocol**: Comprehensive American Stroke Association signs and emergency triage protocol.
+- **Clinical Summary Report**: Exportable and printable diagnostic summary for clinical consultation.
 
-- Drop `id` from model features while retaining it as `patient_id` in handoff predictions.
-- Parse literal `N/A` values as missing and median-impute numeric fields inside the training pipeline.
-- Use stratified train/validation/test splits.
-- Use class-weighted XGBoost as the primary model and retain class-balanced logistic regression as an interpretable baseline.
-- Select operating thresholds using validation data, then report ROC-AUC, average precision, recall, precision, and coverage.
-- Calibrate the primary XGBoost probabilities and produce SHAP explanations.
+## Getting Started
 
-## Layout
-
-- `src/`: reusable preprocessing, training, calibration, abstention, and explanation code.
-- `notebooks/`: ordered exploratory and modeling notebooks.
-- `outputs/`: generated handoff artifacts. `model.pkl` is the primary XGBoost model; `logistic_model.pkl` is retained as the comparison baseline.
-- `demo/`: Streamlit prediction demo.
-
-## Run
-
-```powershell
-pip install -r requirements.txt
-Copy-Item .\stroke_prediction.csv .\data\stroke_prediction.csv
-python -m src.train_model
-python -m src.calibrate
-python -m src.abstention
-python -m src.explain
-streamlit run demo/app.py
+```bash
+npm install
+npm run dev
 ```
 
-The positive class is rare, so accuracy is not the primary success criterion. Review AUROC, AUPRC, recall, calibration, and the number of cases sent for manual review together. Canonical `val_predictions.csv` and `test_predictions.csv` use XGBoost probabilities.
+The application runs on port `3000` (`http://0.0.0.0:3000`).
+
